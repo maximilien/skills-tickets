@@ -71,7 +71,7 @@ class UserVoiceTest:
 
             # Loops through all the suggestions and loads new pages as necessary.
             for tickets in tickets:
-                print('{id}: {ticket_number}'.format(**ticket))        
+                print('{id}: {ticket_number}'.format(**ticket))
 
 def main():
     test = UserVoiceTest()
