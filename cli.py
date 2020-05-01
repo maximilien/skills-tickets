@@ -45,9 +45,9 @@ class CLI:
             self.credentials['subdomain'] = self.args['--subdomain']
 
     def command(self):
-        if self.args['tickets']:
+        if self.args.get('tickets') and self.args['tickets']:
             return Tickets(self.args)
-        elif self.args['suggestions']:
+        elif self.args.get('suggestions') and self.args['suggestions']:
             return Suggestions(self.args)
         else:
             raise Exception("Invalid command")
@@ -79,6 +79,8 @@ class Command:
             return self.list
         elif self.args['show']:
             return self.show
+        elif self.args['delete']:
+            return self.delete
         elif self.args['create']:
             return self.create
         else:
@@ -99,6 +101,9 @@ class Tickets(Command):
     def show(self):
       print("tickets show: {ID} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
 
+    def delete(self):
+      print("tickets delete: {ID} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
+
     def create(self):
       print("tickets create: {TITLE} {BODY} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
 
@@ -116,6 +121,9 @@ class Suggestions(Command):
 
     def show(self):
       print("suggestions show: {ID} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
+
+    def delete(self):
+      print("tickets delete: {ID} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
 
     def create(self):
       print("suggestions create: {TICKET-ID} {TITLE} {BODY} {--subdomain} {--api-key} {--api-secret}".format(**self.args))

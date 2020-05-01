@@ -19,10 +19,12 @@
 Usage:
   st.py tickets list [options]
   st.py tickets show ID [options]
+  st.py tickets delete ID [options]
   st.py tickets create TITLE BODY [options]
   
   st.py suggestions list [options]
   st.py suggestions show ID [options]
+  st.py suggestions delete ID [options]
   st.py suggestions create TICKET-ID TITLE BODY [options]
   
   st.py (-h | --help)
