@@ -20,6 +20,7 @@ Usage:
   st.py tickets list [options]
   st.py tickets show ID [options]
   st.py tickets create TITLE BODY [options]
+  
   st.py suggestions list [options]
   st.py suggestions show ID [options]
   st.py suggestions create TICKET-ID TITLE BODY [options]
@@ -28,12 +29,13 @@ Usage:
   st.py --version
 
 Options:
-  -h --help               Show this screen.
-  --version               Show version.
+  --credentials=FILE      A YAML file with subdomain, api-key, and api-secret.values.
   --subdomain=SUBDOMAIN   The subdomain name for this UserVoice installation [default: cognitiveclass].
   --email=EMAIL           The email for the current user.
   --api-key=API-KEY       The API key for the current user.
   --api-secret=API-SECRET The API key for the current user.
+  -h --help               Show this screen.
+  --version               Show version.
 
 """
 import os, sys, traceback

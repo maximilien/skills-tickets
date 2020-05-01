@@ -12,9 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import yaml
+
 class CLI:
     def __init__(self, args):
         self.args = args
+        self.__setup_credentials()
+
+    def __parse_credentials(self):
+        self.credentials = {}
+        file_name = self.args['--credentials']
+        if file_name:
+            try:
+                with open(file_name) as file:
+                    self.credentials = yaml.load(file, Loader=yaml.FullLoader)
+            except:
+                print("Error opening credentials file: {file_name}".format(file_name=file_name))
+        return self.credentials
+
+    def __setup_credentials(self):
+        self.credentials = self.__parse_credentials()
+        if self.args['--api-key'] and self.args['--credentials']:
+            print("WARNING: using --api-key value in credentials")
+            self.credentials['api-key'] = self.args['--api-key']
+
+        if self.args['--api-secret'] and self.args['--credentials']:
+            print("WARNING: using --api-secret value in credentials")
+            self.credentials['api-secret'] = self.args['--api-secret']
+
+        if self.args['--subdomain'] and self.args['--credentials']:
+            print("WARNING: using --subdomain value in credentials")
+            self.credentials['subdomain'] = self.args['--subdomain']
 
     def command(self):
         if self.args['tickets']:
