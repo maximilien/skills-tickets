@@ -21,23 +21,29 @@ Usage:
   st.py tickets show ID [options]
   st.py tickets delete ID [options]
   st.py tickets create TITLE BODY [options]
-  
   st.py suggestions list [options]
   st.py suggestions show ID [options]
   st.py suggestions delete ID [options]
   st.py suggestions create TICKET-ID TITLE BODY [options]
-  
+
   st.py (-h | --help)
-  st.py --version
+  st.py (-v | --version)
 
 Options:
-  --credentials=FILE      A YAML file with subdomain, api-key, and api-secret.values.
-  --subdomain=SUBDOMAIN   The subdomain name for this UserVoice installation [default: cognitiveclass].
-  --email=EMAIL           The email for the current user.
-  --api-key=API-KEY       The API key for the current user.
-  --api-secret=API-SECRET The API key for the current user.
-  -h --help               Show this screen.
-  --version               Show version.
+  --credentials=FILE          A YAML file with API key, user, and server options values.
+
+  --subdomain=SUBDOMAIN       The subdomain name for this UserVoice installation [default: cognitiveclass].
+  --url-callback=URL-CALLBACK The URL callback for this app [default: http://localhost:4567/].
+
+  --api-key=API-KEY           The API key for the current user.
+  --api-secret=API-SECRET     The API secret key for the current user.
+  --sso-key=SSO-KEY           The API SSO key for the current user.
+
+  --display-name=DISPLAY-NAME The user's name to display in messages.
+  --email=EMAIL               The email for the current user.
+
+  -h --help                   Show this screen.
+  -v --version                Show version.
 
 """
 import os, sys, traceback
@@ -46,7 +52,7 @@ from docopt import docopt
 from cli import *
 
 if __name__ == '__main__':
-    args = docopt(__doc__, version='0.1')
+    args = docopt(__doc__, version='Skills Tickets v0.2')
     command = CLI(args).command()
     try:
       rc = command.execute()

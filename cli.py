@@ -32,17 +32,36 @@ class CLI:
 
     def __setup_credentials(self):
         self.credentials = self.__parse_credentials()
-        if self.args['--api-key'] and self.args['--credentials']:
-            print("WARNING: using --api-key value in credentials")
-            self.credentials['api-key'] = self.args['--api-key']
-
-        if self.args['--api-secret'] and self.args['--credentials']:
-            print("WARNING: using --api-secret value in credentials")
-            self.credentials['api-secret'] = self.args['--api-secret']
-
+        # Server
         if self.args['--subdomain'] and self.args['--credentials']:
             print("WARNING: using --subdomain value in credentials")
             self.credentials['subdomain'] = self.args['--subdomain']
+
+        if self.args['--url-callback'] and self.args['--url-callback']:
+            print("WARNING: using --url-callback value in credentials")
+            self.credentials['url_callback'] = self.args['--url-callback']
+
+        # APIs
+        if self.args['--api-key'] and self.args['--credentials']:
+            print("WARNING: using --api-key value in credentials")
+            self.credentials['api_key'] = self.args['--api-key']
+
+        if self.args['--api-secret'] and self.args['--credentials']:
+            print("WARNING: using --api-secret value in credentials")
+            self.credentials['api_secret'] = self.args['--api-secret']
+
+        if self.args['--sso-key'] and self.args['--sso-key']:
+            print("WARNING: using --sso-key value in credentials")
+            self.credentials['sso_key'] = self.args['--sso-key']
+
+        # User
+        if self.args['--display-name'] and self.args['--credentials']:
+            print("WARNING: using --display-name value in credentials")
+            self.credentials['display_name'] = self.args['--display-name']
+
+        if self.args['--email'] and self.args['--credentials']:
+            print("WARNING: using --email value in credentials")
+            self.credentials['email'] = self.args['--email']
 
     def command(self):
         if self.args.get('tickets') and self.args['tickets']:
