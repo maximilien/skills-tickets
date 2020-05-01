@@ -111,7 +111,8 @@ py_e2e() {
 
   echo "🧪 e2e ${X}Tests"
   set +e
-  ./test/local-e2e-tests.sh >$e2e_output 2>&1
+  cd test
+  ./local-e2e-tests.sh >$e2e_output 2>&1
   local err=$?
   if [ $err -ne 0 ]; then
     echo "🔥 ${red}Failure${reset}"
@@ -119,6 +120,7 @@ py_e2e() {
     rm $e2e_output
     exit $err
   fi
+  cd ..
   rm $e2e_output
 }
 

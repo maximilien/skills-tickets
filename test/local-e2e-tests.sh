@@ -14,20 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export PATH=$PWD:$PATH
-
 dir=$(dirname "${BASH_SOURCE[0]}")
-base=$(cd "$dir/.." && pwd)
-kn_path=`which python3`
 
 # Start testing
-echo "🧪  Testing"
-kn_path -m unittest ${base}/test/*_e2e_test.py "$@"
+echo "🧪  e2e Testing"
+python3 -m unittest *_e2e_test.py
+err=$?
 
 # Output
-echo ""
-if [ $? -eq 0 ]; then
-   echo "✅ Success"
+if [ $err -ne 0 ]; then
+   echo "❗️Failure"
 else
-	echo "❗️Failure"
+   echo "✅ Success"
 fi
+
+exit $err
