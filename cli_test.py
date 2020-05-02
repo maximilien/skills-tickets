@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
+from unittest import TestCase
+from unittest.mock import patch, Mock
 
 from cli import *
 
-class TestCLI(unittest.TestCase):
+class TestCLI(TestCase):
     def setUp(self):
         self.arguments = {'--api-key': None,
                          '--api-secret': None,
@@ -27,6 +28,7 @@ class TestCLI(unittest.TestCase):
                          '--sso-key': None,
                          '--subdomain': 'cognitiveclass',
                          '--url-callback': None,
+                         '--verbose': False,
                          '--version': False,
                          'BODY': 'body',
                          'ID': None,
@@ -57,7 +59,7 @@ class TestCLI(unittest.TestCase):
                 self.arguments[method_name] = False
             self.arguments[command_name] = False
 
-class TestTickets(unittest.TestCase):
+class TestTickets(TestCase):
     def setUp(self):
         self.arguments = {'--api-key': None,
                          '--api-secret': None,
@@ -68,6 +70,7 @@ class TestTickets(unittest.TestCase):
                          '--sso-key': None,
                          '--subdomain': 'cognitiveclass',
                          '--url-callback': None,
+                         '--verbose': False,
                          '--version': False,
                          'BODY': 'body',
                          'ID': None,
@@ -97,7 +100,7 @@ class TestTickets(unittest.TestCase):
     def test_create(self):
         pass
 
-class TestSuggestions(unittest.TestCase):
+class TestSuggestions(TestCase):
     def setUp(self):
         self.arguments = {'--api-key': None,
                          '--api-secret': None,
@@ -108,6 +111,8 @@ class TestSuggestions(unittest.TestCase):
                          '--sso-key': None,
                          '--subdomain': 'cognitiveclass',
                          '--url-callback': None,
+                         '--verbose': False,
+                         '--verbose': False,
                          '--version': False,
                          'BODY': 'body',
                          'ID': None,
@@ -125,11 +130,30 @@ class TestSuggestions(unittest.TestCase):
     def test_execute(self):
         pass
 
-    def test_list(self):
-        pass
+    @patch('client.UserVoiceClient')
+    def test_list(self, MockUserVoiceClient):
+        self.arguments['list'] = True
+        cli = CLI(self.arguments)
 
-    def test_show(self):
-        pass
+        client = MockUserVoiceClient()
+        client.suggestions.return_value = [{'id': 1, 'title': 'fake-title1', 'state': 'fake-state1'},
+                                           {'id': 2, 'title': 'fake-title2', 'state': 'fake-state2'}]
+
+        rc = cli.command().execute()
+        self.assertEqual(rc, 0)
+
+    @patch('client.UserVoiceClient')
+    def test_show(self, MockUserVoiceClient):
+        self.arguments['show'] = True
+        self.arguments['ID'] = 1
+
+        client = MockUserVoiceClient()
+        client.suggestion.return_value = {'id': 1, 'title': 'fake-title', 'state': 'fake-state'}
+
+        cli = CLI(self.arguments)
+
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
 
     def test_delete(self):
         pass
@@ -138,4 +162,4 @@ class TestSuggestions(unittest.TestCase):
         pass
 
 if __name__ == '__main__':
-    unittest.main()
+    main()

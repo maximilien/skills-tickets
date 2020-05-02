@@ -42,6 +42,7 @@ Options:
   --display-name=DISPLAY-NAME The user's name to display in messages.
   --email=EMAIL               The email for the current user.
 
+  --verbose                   Show all output.
   -h --help                   Show this screen.
   -v --version                Show version."""
 
@@ -71,3 +72,11 @@ class TestBasicWorkflow(unittest.TestCase):
         rc = st.execute()
         self.assertEqual(rc, 0)
         self.assertTrue("Skills Tickets v" in st.out)
+
+    def test_suggestions_list(self):
+        st = ST(["suggestions", "list", "--credentials=../credentials.yml"])
+        rc = st.execute()
+        self.assertEqual(rc, 0)
+        for word in ["Found", "suggestions"]:
+            self.assertTrue(word in st.out)
+        self.assertTrue("Found" in st.out)

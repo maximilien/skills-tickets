@@ -28,10 +28,10 @@ class UserVoiceClient:
 
     def get_client(self):
         if self.client == None:
-            self.client = uservoice.Client(self.credentials.subdomain, 
-                                           self.credentials.api_key, 
-                                           self.credentials.api_secret, 
-                                           callback=self.credentials.url_callback)
+            self.client = uservoice.Client(self.credentials.subdomain(), 
+                                           self.credentials.api_key(), 
+                                           self.credentials.api_secret(), 
+                                           callback=self.credentials.url_callback())
         return self.client
 
     def post_question(self, email, subject, message):
@@ -44,9 +44,11 @@ class UserVoiceClient:
         })['ticket']
         return question
 
-    # def read_suggestions(self):
-    #     # Creates a lazy-loading collection object but makes no requests to the API yet.
-    #     suggestions = self.get_client().get_collection("/api/v1/suggestions?sort=newest")
+    def suggestions(self):
+        return self.get_client().get_collection("/api/v1/suggestions?sort=newest")
+
+    def suggestion(self, id):
+        return self.get_client().get("/api/v1/suggestions/", {'id': id})['suggestions'][0]
 
     #     # Loads the first page (at most 100 records) of suggestions and reads the count.
     #     print('Total suggestions: {total}'.format(total=len(suggestions)))
@@ -64,5 +66,5 @@ class UserVoiceClient:
     #         print('Total tickets: {total}'.format(total=len(tickets)))
 
     #         # Loops through all the suggestions and loads new pages as necessary.
-    #         for tickets in tickets:
+    #         for ticket in tickets:
     #             print('{id}: {ticket_number}'.format(**ticket))

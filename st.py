@@ -42,6 +42,7 @@ Options:
   --display-name=DISPLAY-NAME The user's name to display in messages.
   --email=EMAIL               The email for the current user.
 
+  --verbose                   Show all output.
   -h --help                   Show this screen.
   -v --version                Show version.
 
@@ -60,4 +61,6 @@ if __name__ == '__main__':
           sys.exit(rc)
     except:
         traceback.print_last()
-        print("ERROR executing `{name}` command".format(name=command.name()))
+        if args['--verbose']:
+          print("ERROR executing `{name}` command".format(name=command.name()))        
+        sys.exit(-1)
