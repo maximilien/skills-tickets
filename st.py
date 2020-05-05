@@ -42,6 +42,8 @@ Options:
   --display-name=DISPLAY-NAME The user's name to display in messages.
   --email=EMAIL               The email for the current user.
 
+  --show-details              Print the details of a show command, e.g., prints the list of suggestions [default: Fasle].
+
   --verbose                   Show all output.
   -h --help                   Show this screen.
   -v --version                Show version.
@@ -60,7 +62,7 @@ if __name__ == '__main__':
       if rc != 0:
           sys.exit(rc)
     except:
-        traceback.print_last()
-        if args['--verbose']:
-          print("ERROR executing `{name}` command".format(name=command.name()))        
+        if hasattr(sys, 'last_traceback'):
+            traceback.print_last()
+        print("ERROR executing `{name}` command".format(name=command.name()))
         sys.exit(-1)

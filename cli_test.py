@@ -17,6 +17,38 @@ from unittest.mock import patch, Mock
 
 from cli import *
 
+class TestCredentials(TestCase):
+    def setUp(self):
+        self.hash = {'subdomain': 'fake-domain',
+                     'url_callback': 'fake-url-callbnack',
+                     'api_key': 'fake-api-key',
+                     'api_secret': 'fake-api-secret',
+                     'sso_key': 'fake-sso-key',
+                     'display_name': 'fake-display-name',
+                     'email': 'fake@email.com'}
+        self.credentials = Credentials(self.hash)
+
+    def test_subdomain(self):
+        self.assertEqual(self.hash['subdomain'], self.credentials.subdomain())
+
+    def test_url_callback(self):
+        self.assertEqual(self.hash['url_callback'], self.credentials.url_callback())
+
+    def test_api_key(self):
+        self.assertEqual(self.hash['api_key'], self.credentials.api_key())
+
+    def test_api_secret(self):
+        self.assertEqual(self.hash['api_secret'], self.credentials.api_secret())
+
+    def test_sso_key(self):
+        self.assertEqual(self.hash['sso_key'], self.credentials.sso_key())
+
+    def test_display_name(self):
+        self.assertEqual(self.hash['display_name'], self.credentials.display_name())
+
+    def test_email(self):
+        self.assertEqual(self.hash['email'], self.credentials.email())
+
 class TestCLI(TestCase):
     def setUp(self):
         self.arguments = {'--api-key': None,
@@ -70,6 +102,7 @@ class TestTickets(TestCase):
                          '--sso-key': None,
                          '--subdomain': 'cognitiveclass',
                          '--url-callback': None,
+                         '--show-details': False,
                          '--verbose': False,
                          '--version': False,
                          'BODY': 'body',
@@ -111,7 +144,7 @@ class TestSuggestions(TestCase):
                          '--sso-key': None,
                          '--subdomain': 'cognitiveclass',
                          '--url-callback': None,
-                         '--verbose': False,
+                         '--show-details': False,
                          '--verbose': False,
                          '--version': False,
                          'BODY': 'body',
@@ -139,7 +172,20 @@ class TestSuggestions(TestCase):
         client.suggestions.return_value = [{'id': 1, 'title': 'fake-title1', 'state': 'fake-state1'},
                                            {'id': 2, 'title': 'fake-title2', 'state': 'fake-state2'}]
 
-        rc = cli.command().execute()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
+
+    @patch('client.UserVoiceClient')
+    def test_list_show_details(self, MockUserVoiceClient):
+        self.arguments['list'] = True
+        self.arguments['--show-details'] = True
+        cli = CLI(self.arguments)
+
+        client = MockUserVoiceClient()
+        client.suggestions.return_value = [{'id': 1, 'title': 'fake-title1', 'state': 'fake-state1'},
+                                           {'id': 2, 'title': 'fake-title2', 'state': 'fake-state2'}]
+
+        rc = cli.command(client).execute()
         self.assertEqual(rc, 0)
 
     @patch('client.UserVoiceClient')

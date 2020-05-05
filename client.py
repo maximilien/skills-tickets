@@ -20,10 +20,10 @@ class UserVoiceClient:
         self.credentials = credentials
 
     def __create_sso(self, valid_time=5):
-        print("create_sso: {display_name}, {email}, {valid_time}".format(display_name=self.credentials.display_name, email=self.credentials.email, valid_time=valid_time))
-        return uservoice.generate_sso_token(self.credentials.subdomain, 
-                                            self.credentials.sso_key, {
-                                                'email': email
+        print("create_sso: {display_name}, {email}, {valid_time}".format(display_name=self.credentials.display_name(), email=self.credentials.email(), valid_time=valid_time))
+        return uservoice.generate_sso_token(self.credentials.subdomain(), 
+                                            self.credentials.sso_key(), {
+                                            'email': self.credentials.email()
                                             }, valid_time*60)
 
     def get_client(self):
@@ -34,6 +34,22 @@ class UserVoiceClient:
                                            callback=self.credentials.url_callback())
         return self.client
 
+    # Suggestions
+    def suggestions(self):
+        return self.get_client().get_collection("/api/v1/suggestions?sort=newest")
+
+    def suggestion(self, id):
+        return self.get_client().get("/api/v1/suggestions/", {'id': id})['suggestions'][0]
+
+    # Tickets
+    def tickets(self):
+        with self.get_client().login_as(self.credentials.email()) as access_token:
+            return access_token.get_collection("/api/v1/tickets?sort=newest")
+        return []
+
+    def ticket(self, id):
+        return self.get_client().get("/api/v1/tickets/", {'id': id})['tickets'][0]
+
     def post_question(self, email, subject, message):
         question = self.get_client().post("/api/v1/tickets.json", {
             'email': email,
@@ -43,28 +59,3 @@ class UserVoiceClient:
             }
         })['ticket']
         return question
-
-    def suggestions(self):
-        return self.get_client().get_collection("/api/v1/suggestions?sort=newest")
-
-    def suggestion(self, id):
-        return self.get_client().get("/api/v1/suggestions/", {'id': id})['suggestions'][0]
-
-    #     # Loads the first page (at most 100 records) of suggestions and reads the count.
-    #     print('Total suggestions: {total}'.format(total=len(suggestions)))
-
-    #     # Loops through all the suggestions and loads new pages as necessary.
-    #     for suggestion in suggestions:
-    #         print('{title}: {url}'.format(**suggestion))
-
-    # def read_tickets(self, email):
-    #     with self.get_client().login_as(email) as access_token:
-    #         # Creates a lazy-loading collection object but makes no requests to the API yet.
-    #         tickets = access_token.get_collection("/api/v1/tickets?sort=newest")
-
-    #         # Loads the first page (at most 100 records) of suggestions and reads the count.
-    #         print('Total tickets: {total}'.format(total=len(tickets)))
-
-    #         # Loops through all the suggestions and loads new pages as necessary.
-    #         for ticket in tickets:
-    #             print('{id}: {ticket_number}'.format(**ticket))

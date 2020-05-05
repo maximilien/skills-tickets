@@ -151,10 +151,10 @@ class Command:
                 else:
                     return -1
         except Exception as e:
-            Console.print("LOG: error {message}".format(message=e.message))
+            Console.print("LOG: error {message}".format(message=str(e)))
             return -1
         except:
-            Console.print("LOG: unknown error {message}".format(message=e.message))
+            Console.print("LOG: unknown error {message}".format(message=str(e)))
             return -1
 
     def dispatch(self):
@@ -179,11 +179,13 @@ class Tickets(Command):
       return "tickets"
 
     def list(self):
-        print("tickets list: {--subdomain} {--api-key} {--api-secret}".fomat(**self.args))
+        tickets = self.client.tickets()
+        Console.print("Found '{len}' tickets".format(len=len(tickets)))
         return 0
 
     def show(self):
-        print("tickets show: {ID} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
+        ticket = self.client.ticket(self.args['ID'])
+        print("Ticket: {id} title: '{title}' is currently '{state}'".format(**suggestion))
         return 0
 
     def delete(self):
@@ -206,6 +208,11 @@ class Suggestions(Command):
     def list(self):
         suggestions = self.client.suggestions()
         print("Found '{len}' suggestions".format(len=len(suggestions)))
+        if self.args['--show-details']:
+            i = 1
+            for suggestion in suggestions:
+                print("{no}. ID: '{id}', title: '{title}', state: '{state}'".format(no=i, id=suggestion['id'], title=suggestion['title'], state=suggestion['state']))
+                i += 1
         return 0
 
     def show(self):

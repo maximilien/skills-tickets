@@ -42,6 +42,8 @@ Options:
   --display-name=DISPLAY-NAME The user's name to display in messages.
   --email=EMAIL               The email for the current user.
 
+  --show-details              Print the details of a show command, e.g., prints the list of suggestions [default: Fasle].
+
   --verbose                   Show all output.
   -h --help                   Show this screen.
   -v --version                Show version."""

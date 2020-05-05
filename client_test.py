@@ -23,5 +23,17 @@ class TestUserVoiceClient(unittest.TestCase):
     def test_get_client(self):
         pass
 
+    def test_suggestions(self):
+        pass
+
+    def test_suggestion(self):
+        pass
+
+    def test_tickets(self):
+        pass
+
+    def test_ticket(self):
+        pass
+
 if __name__ == '__main__':
     unittest.main()
