@@ -143,23 +143,23 @@ class Command:
 
     def execute(self):
         func = self.dispatch()
-        try:
-            rc = func()
-            if rc == None:
-                return 0
+        # try:
+        rc = func()
+        if rc == None:
+            return 0
+        else:
+            if isinstance(rc, int):
+                return rc
             else:
-                if isinstance(rc, int):
-                    return rc
-                else:
-                    return -1
-        except Exception as e:
-            Console.print("LOG: error {message}".format(message=str(e)))
-            return -1
-        except:
-            if VERBOSE:
-                traceback.print_exc(file=sys.stdout)
-            Console.print("LOG: unknown error {message}".format(message=str(e)))
-            return -1
+                return -1
+        # except Exception as e:
+        #     Console.print("LOG: error {message}".format(message=str(e)))
+        #     return -1
+        # except:
+        #     if VERBOSE:
+        #         traceback.print_exc(file=sys.stdout)
+        #     Console.print("LOG: unknown error {message}".format(message=str(e)))
+        #     return -1
 
     def dispatch(self):
         if self.args['list']:
@@ -234,7 +234,7 @@ class Suggestions(Command):
         return 0
 
     def create(self):
-        suggestion = self.client.post_suggestion(self.args['TITLE'], self.args['BODY'])
+        suggestion = self.client.post_suggestion(self.args['FORUM_ID'], self.args['TITLE'], self.args['BODY'])
         self.__print(suggestion)
         return 0
 

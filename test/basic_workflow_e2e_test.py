@@ -24,7 +24,7 @@ Usage:
   st.py suggestions list [options]
   st.py suggestions show ID [options]
   st.py suggestions delete ID [options]
-  st.py suggestions create TITLE BODY [options]
+  st.py suggestions create FORUM_ID TITLE BODY [options]
   st.py forums list [options]
   st.py forums show ID [options]
 

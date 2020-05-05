@@ -41,15 +41,16 @@ class UserVoiceClient:
     def get_suggestion(self, id):
         return self.get_client().get("/api/v1/suggestions/", {'id': id})['suggestions'][0]
 
-    def post_suggestion(self, title, body):
-        suggestion = self.get_client().post("/api/v1/suggestions.json", {
-            'email': self.credentials.email(),
-            'suggestion': {
-                'subject': title,
-                'message': body
-            }
-        })['suggestion']
-        return suggestion
+    def post_suggestion(self, forum_id, title, text):
+        with client.login_as(self.credentials.email()) as access_token:
+            suggestion = access_token.post("/api/v1/forums/{forum_id}/suggestions.json".format(forum_id=forum_id), {
+                'email': self.credentials.email(),
+                'suggestion': {
+                    'title': title,
+                    'text': text
+                }
+            })['suggestion']
+            return suggestion
 
     # Tickets
     def get_tickets(self):
