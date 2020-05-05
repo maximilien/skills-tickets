@@ -130,6 +130,8 @@ class CLI:
             return Tickets(self.args, self.credentials, client)
         elif self.args.get('suggestions') and self.args['suggestions']:
             return Suggestions(self.args, self.credentials, client)
+        elif self.args.get('forums') and self.args['forums']:
+            return Forums(self.args, self.credentials, client)
         else:
             raise Exception("Invalid command")
 
@@ -154,6 +156,8 @@ class Command:
             Console.print("LOG: error {message}".format(message=str(e)))
             return -1
         except:
+            if VERBOSE:
+                traceback.print_exc(file=sys.stdout)
             Console.print("LOG: unknown error {message}".format(message=str(e)))
             return -1
 
@@ -179,21 +183,21 @@ class Tickets(Command):
       return "tickets"
 
     def list(self):
-        tickets = self.client.tickets()
+        tickets = self.client.get_tickets()
         Console.print("Found '{len}' tickets".format(len=len(tickets)))
         return 0
 
     def show(self):
-        ticket = self.client.ticket(self.args['ID'])
+        ticket = self.client.get_ticket(self.args['ID'])
         print("Ticket: {id} title: '{title}' is currently '{state}'".format(**suggestion))
-        return 0
-
-    def delete(self):
-        print("tickets delete: {ID} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
         return 0
 
     def create(self):
         print("tickets create: {TITLE} {BODY} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
+        return 0
+
+    def delete(self):
+        print("tickets delete: {ID} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
         return 0
 
 # suggestions command group
@@ -202,11 +206,20 @@ class Suggestions(Command):
         self.args = args
         super().__init__(self.args, credentials, client)
 
+    def __print(self, suggestion):
+        print("Suggestion: {id} title: '{title}' is currently '{state}'".format(**suggestion))
+        if self.args['--show-details']:
+            print("  referrer: {referrer}".format(referrer=suggestion['referrer']))
+            print("  vote_count: {vote_count}, subscriber_count: {subscriber_count}, comments_count: {comments_count}, supporters_count: {supporters_count}".format(vote_count=suggestion['vote_count'], subscriber_count=suggestion['subscriber_count'], comments_count=suggestion['comments_count'], supporters_count=suggestion['supporters_count']))
+            print("  category: {category}, status: {status}, response: {response}".format(category=suggestion['category']['name'], status=suggestion['status'], response=suggestion['response']))
+            print("  text: {text}".format(text=suggestion['text']))
+            print("------")
+
     def name(self):
         return "suggestions"
 
     def list(self):
-        suggestions = self.client.suggestions()
+        suggestions = self.client.get_suggestions()
         print("Found '{len}' suggestions".format(len=len(suggestions)))
         if self.args['--show-details']:
             i = 1
@@ -216,14 +229,39 @@ class Suggestions(Command):
         return 0
 
     def show(self):
-        suggestion = self.client.suggestion(self.args['ID'])
-        print("Suggestion: {id} title: '{title}' is currently '{state}'".format(**suggestion))
+        suggestion = self.client.get_suggestion(self.args['ID'])
+        self.__print(suggestion)
+        return 0
+
+    def create(self):
+        suggestion = self.client.post_suggestion(self.args['TITLE'], self.args['BODY'])
+        self.__print(suggestion)
         return 0
 
     def delete(self):
         print("suggestions delete: {ID} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
         return 0
 
-    def create(self):
-        print("suggestions create: {TICKET-ID} {TITLE} {BODY} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
+# forums command group
+class Forums(Command):
+    def __init__(self, args, credentials, client):
+        self.args = args
+        super().__init__(self.args, credentials, client)
+
+    def name(self):
+      return "forums"
+
+    def list(self):
+        forums = self.client.get_forums()
+        print("Found '{len}' forums".format(len=len(forums)))
+        if self.args['--show-details']:
+            i = 1
+            for forum in forums:
+                print("{no}. ID: '{id}', name: '{name}'".format(no=i, id=forum['id'], name=forum['name']))
+                i += 1
+        return 0
+
+    def show(self):
+        forum = self.client.get_forum(self.args['ID'])
+        print("Forum: '{id}', name: '{name}'".format(id=forum['id'], name=forum['name']))
         return 0

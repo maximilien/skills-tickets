@@ -24,7 +24,9 @@ Usage:
   st.py suggestions list [options]
   st.py suggestions show ID [options]
   st.py suggestions delete ID [options]
-  st.py suggestions create TICKET-ID TITLE BODY [options]
+  st.py suggestions create TITLE BODY [options]
+  st.py forums list [options]
+  st.py forums show ID [options]
 
   st.py (-h | --help)
   st.py (-v | --version)
@@ -55,14 +57,14 @@ from docopt import docopt
 from cli import *
 
 if __name__ == '__main__':
-    args = docopt(__doc__, version='Skills Tickets v0.2')
+    args = docopt(__doc__, version='Skills Tickets v0.3')
     command = CLI(args).command()
-    try:
-      rc = command.execute()
-      if rc != 0:
-          sys.exit(rc)
-    except:
-        if hasattr(sys, 'last_traceback'):
-            traceback.print_last()
-        print("ERROR executing `{name}` command".format(name=command.name()))
-        sys.exit(-1)
+  # try:
+    rc = command.execute()
+    if rc != 0:
+        sys.exit(rc)
+  # except:
+  #     if hasattr(sys, 'last_traceback'):
+  #         traceback.print_last()
+  #     print("ERROR executing `{name}` command".format(name=command.name()))
+  #     sys.exit(-1)

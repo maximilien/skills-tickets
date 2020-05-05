@@ -156,6 +156,19 @@ class TestSuggestions(TestCase):
                          'show': False,
                          'suggestions': True}
 
+    @patch('client.UserVoiceClient')
+    def __create_mock_client_get_suggestion(self, MockUserVoiceClient):
+        client = MockUserVoiceClient()
+        client.get_suggestion.return_value = {'id': 1, 'title': 'fake-title1', 'state': 'fake-state1'}
+        return client
+
+    @patch('client.UserVoiceClient')
+    def __create_mock_client_get_suggestions(self, MockUserVoiceClient):
+        client = MockUserVoiceClient()
+        client.get_suggestions.return_value = [{'id': 1, 'title': 'fake-title1', 'state': 'fake-state1'},
+                                               {'id': 2, 'title': 'fake-title2', 'state': 'fake-state2'}]
+        return client
+
     def test_name(self):
         cli = CLI(self.arguments)
         self.assertEqual(cli.command().name(), 'suggestions')
@@ -163,49 +176,100 @@ class TestSuggestions(TestCase):
     def test_execute(self):
         pass
 
-    @patch('client.UserVoiceClient')
-    def test_list(self, MockUserVoiceClient):
+    def test_list(self):
         self.arguments['list'] = True
         cli = CLI(self.arguments)
-
-        client = MockUserVoiceClient()
-        client.suggestions.return_value = [{'id': 1, 'title': 'fake-title1', 'state': 'fake-state1'},
-                                           {'id': 2, 'title': 'fake-title2', 'state': 'fake-state2'}]
-
+        client = self.__create_mock_client_get_suggestions()
         rc = cli.command(client).execute()
         self.assertEqual(rc, 0)
 
-    @patch('client.UserVoiceClient')
-    def test_list_show_details(self, MockUserVoiceClient):
+    def test_list_show_details(self):
         self.arguments['list'] = True
         self.arguments['--show-details'] = True
         cli = CLI(self.arguments)
-
-        client = MockUserVoiceClient()
-        client.suggestions.return_value = [{'id': 1, 'title': 'fake-title1', 'state': 'fake-state1'},
-                                           {'id': 2, 'title': 'fake-title2', 'state': 'fake-state2'}]
-
+        client = self.__create_mock_client_get_suggestions()
         rc = cli.command(client).execute()
         self.assertEqual(rc, 0)
 
-    @patch('client.UserVoiceClient')
-    def test_show(self, MockUserVoiceClient):
+    def test_show(self):
         self.arguments['show'] = True
         self.arguments['ID'] = 1
-
-        client = MockUserVoiceClient()
-        client.suggestion.return_value = {'id': 1, 'title': 'fake-title', 'state': 'fake-state'}
-
         cli = CLI(self.arguments)
-
+        client = self.__create_mock_client_get_suggestion()
         rc = cli.command(client).execute()
         self.assertEqual(rc, 0)
+
+    def test_create(self):
+        pass
 
     def test_delete(self):
         pass
 
-    def test_create(self):
+class TestForums(TestCase):
+    def setUp(self):
+        self.arguments = {'--api-key': None,
+                         '--api-secret': None,
+                         '--credentials': './credentials.yml',
+                         '--display-name': None,
+                         '--email': None,
+                         '--help': False,
+                         '--sso-key': None,
+                         '--subdomain': 'cognitiveclass',
+                         '--url-callback': None,
+                         '--show-details': False,
+                         '--verbose': False,
+                         '--version': False,
+                         'BODY': 'body',
+                         'ID': None,
+                         'TITLE': 'title',
+                         'create': True,
+                         'list': False,
+                         'delete': False,
+                         'show': False,
+                         'forums': True}
+
+    @patch('client.UserVoiceClient')
+    def __create_mock_client_get_forum(self, MockUserVoiceClient):
+        client = MockUserVoiceClient()
+        client.get_forum.return_value = {'id': 1, 'name': 'fake-forum'}
+        return client
+
+    @patch('client.UserVoiceClient')
+    def __create_mock_client_get_forums(self, MockUserVoiceClient):
+        client = MockUserVoiceClient()
+        client.get_forums.return_value = [{'id': 1, 'name': 'fake-forum1'},
+                                          {'id': 2, 'name': 'fake-forum2'}]
+        return client
+
+    def test_name(self):
+        cli = CLI(self.arguments)
+        self.assertEqual(cli.command().name(), 'forums')
+
+    def test_execute(self):
         pass
+
+    def test_list(self):
+        self.arguments['list'] = True
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_get_forums()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
+
+    def test_list_show_details(self):
+        self.arguments['list'] = True
+        self.arguments['--show-details'] = True
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_get_forums()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
+
+    def test_show(self):
+        self.arguments['show'] = True
+        self.arguments['ID'] = 1
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_get_forum()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
 
 if __name__ == '__main__':
     main()

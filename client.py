@@ -35,22 +35,32 @@ class UserVoiceClient:
         return self.client
 
     # Suggestions
-    def suggestions(self):
+    def get_suggestions(self):
         return self.get_client().get_collection("/api/v1/suggestions?sort=newest")
 
-    def suggestion(self, id):
+    def get_suggestion(self, id):
         return self.get_client().get("/api/v1/suggestions/", {'id': id})['suggestions'][0]
 
+    def post_suggestion(self, title, body):
+        suggestion = self.get_client().post("/api/v1/suggestions.json", {
+            'email': self.credentials.email(),
+            'suggestion': {
+                'subject': title,
+                'message': body
+            }
+        })['suggestion']
+        return suggestion
+
     # Tickets
-    def tickets(self):
+    def get_tickets(self):
         with self.get_client().login_as(self.credentials.email()) as access_token:
             return access_token.get_collection("/api/v1/tickets?sort=newest")
         return []
 
-    def ticket(self, id):
+    def get_ticket(self, id):
         return self.get_client().get("/api/v1/tickets/", {'id': id})['tickets'][0]
 
-    def post_question(self, email, subject, message):
+    def post_ticket(self, email, subject, message):
         question = self.get_client().post("/api/v1/tickets.json", {
             'email': email,
             'ticket': {
@@ -59,3 +69,11 @@ class UserVoiceClient:
             }
         })['ticket']
         return question
+
+    # Forums
+    def get_forums(self):
+        return self.get_client().get_collection("/api/v1/forums?sort=newest")
+
+    def get_forum(self, id):
+        return self.get_client().get("/api/v1/forums/", {'id': id})['forums'][0]
+

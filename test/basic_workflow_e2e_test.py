@@ -24,7 +24,9 @@ Usage:
   st.py suggestions list [options]
   st.py suggestions show ID [options]
   st.py suggestions delete ID [options]
-  st.py suggestions create TICKET-ID TITLE BODY [options]
+  st.py suggestions create TITLE BODY [options]
+  st.py forums list [options]
+  st.py forums show ID [options]
 
   st.py (-h | --help)
   st.py (-v | --version)
@@ -81,4 +83,10 @@ class TestBasicWorkflow(unittest.TestCase):
         self.assertEqual(rc, 0)
         for word in ["Found", "suggestions"]:
             self.assertTrue(word in st.out)
-        self.assertTrue("Found" in st.out)
+
+    def test_forums_list(self):
+        st = ST(["forums", "list", "--credentials=../credentials.yml"])
+        rc = st.execute()
+        self.assertEqual(rc, 0)
+        for word in ["Found", "forums"]:
+            self.assertTrue(word in st.out)
