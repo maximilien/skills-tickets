@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os, tempfile
+
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
@@ -91,7 +93,7 @@ class TestCLI(TestCase):
                 self.arguments[method_name] = False
             self.arguments[command_name] = False
 
-class TestTickets(TestCase):
+class CommandTestCase:
     def setUp(self):
         self.arguments = {'--api-key': None,
                          '--api-secret': None,
@@ -111,8 +113,32 @@ class TestTickets(TestCase):
                          'create': False,
                          'list': False,
                          'delete': False,
-                         'show': False,
-                         'tickets': True}
+                         'show': False}
+        self.args = self.arguments
+
+    @patch('client.UserVoiceClient')
+    def __create_mock_client(self, MockUserVoiceClient):
+        return MockUserVoiceClient()
+
+    def test_verbose(self):
+        self.arguments[self.command_name()] = True
+        command = CLI(self.arguments).command(self.__create_mock_client())
+        if self.arguments['--verbose'] == True:
+            self.assertTrue(command.verbose())
+        else:
+            self.assertFalse(command.verbose())
+
+    def test_name(self):
+        cli = CLI(self.arguments)
+        self.assertEqual(cli.command().name(), self.command_name())
+
+class TestTickets(CommandTestCase, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.arguments['tickets'] = True
+
+    def command_name(self):
+        return "tickets"
 
     @patch('client.UserVoiceClient')
     def __create_mock_client_get_ticket(self, MockUserVoiceClient):
@@ -138,10 +164,6 @@ class TestTickets(TestCase):
         client = MockUserVoiceClient()
         client.put_delete_ticket.return_value = 200
         return client
-
-    def test_name(self):
-        cli = CLI(self.arguments)
-        self.assertEqual(cli.command().name(), 'tickets')
 
     def test_execute(self):
         self.arguments['fake'] = True
@@ -190,28 +212,10 @@ class TestTickets(TestCase):
         rc = cli.command(client).execute()
         self.assertEqual(rc, 0)
 
-class TestSuggestions(TestCase):
+class TestSuggestions(CommandTestCase, TestCase):
     def setUp(self):
-        self.arguments = {'--api-key': None,
-                         '--api-secret': None,
-                         '--credentials': './credentials.yml',
-                         '--display-name': None,
-                         '--email': None,
-                         '--help': False,
-                         '--sso-key': None,
-                         '--subdomain': 'cognitiveclass',
-                         '--url-callback': None,
-                         '--show-details': False,
-                         '--verbose': False,
-                         '--version': False,
-                         'BODY': 'body',
-                         'ID': None,
-                         'TITLE': 'title',
-                         'create': False,
-                         'list': False,
-                         'delete': False,
-                         'show': False,
-                         'suggestions': True}
+        super().setUp()
+        self.arguments['suggestions'] = True
 
     @patch('client.UserVoiceClient')
     def __create_mock_client_get_suggestion(self, MockUserVoiceClient):
@@ -238,9 +242,8 @@ class TestSuggestions(TestCase):
         client.put_delete_suggestion.return_value = 200
         return client
 
-    def test_name(self):
-        cli = CLI(self.arguments)
-        self.assertEqual(cli.command().name(), 'suggestions')
+    def command_name(self):
+        return "suggestions"
 
     def test_execute(self):
         self.arguments['fake'] = True
@@ -290,28 +293,10 @@ class TestSuggestions(TestCase):
         rc = cli.command(client).execute()
         self.assertEqual(rc, 0)
 
-class TestForums(TestCase):
+class TestForums(CommandTestCase, TestCase):
     def setUp(self):
-        self.arguments = {'--api-key': None,
-                         '--api-secret': None,
-                         '--credentials': './credentials.yml',
-                         '--display-name': None,
-                         '--email': None,
-                         '--help': False,
-                         '--sso-key': None,
-                         '--subdomain': 'cognitiveclass',
-                         '--url-callback': None,
-                         '--show-details': False,
-                         '--verbose': False,
-                         '--version': False,
-                         'BODY': 'body',
-                         'ID': None,
-                         'TITLE': 'title',
-                         'create': False,
-                         'list': False,
-                         'delete': False,
-                         'show': False,
-                         'forums': True}
+        super().setUp()
+        self.arguments['forums'] = True
 
     @patch('client.UserVoiceClient')
     def __create_mock_client_get_forum(self, MockUserVoiceClient):
@@ -326,9 +311,8 @@ class TestForums(TestCase):
                                           {'id': 2, 'name': 'fake-forum2'}]
         return client
 
-    def test_name(self):
-        cli = CLI(self.arguments)
-        self.assertEqual(cli.command().name(), 'forums')
+    def command_name(self):
+        return "forums"
 
     def test_execute(self):
         self.arguments['fake'] = True
@@ -358,6 +342,54 @@ class TestForums(TestCase):
         cli = CLI(self.arguments)
         client = self.__create_mock_client_get_forum()
         rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
+
+class TestCSV(CommandTestCase):
+    def setUp(self):
+        super().setUp()
+        self.arguments = {**self.arguments, **{'FILE': None,
+                                               'CLUSTER': None,
+                                               'split': False,
+                                               'verify': False,
+                                               'csv': True}}
+        TEST_CSV = """, id, Ticket Number, name, cluster
+        1, 11, 12, fake-name1, fake cluster1
+        2, 21, 22, fake-name1, fake cluster2
+        3, 31, 32, fake-name1, fake cluster1
+        """
+        file, self.input_filepath = tempfile.mkstemp()
+        with os.fdopen(file, 'w') as tmp:
+            tmp.write(TEST_CSV)
+
+    def tearDown(self):
+        os.remove(self.input_filepath)
+
+    def command_name(self):
+        return "csv"
+
+    def test_execute(self):
+        self.arguments['fake'] = True
+        cli = CLI(self.arguments)
+        with self.assertRaises(Exception) as context:
+            cli.command(client).execute()
+
+    def test_verify(self):
+        self.arguments['FILE'] = self.input_filepath
+        self.arguments['verify'] = True
+        command = CLI(self.arguments).command()
+        rc = command.execute()
+        self.assertEqual(rc, 0)
+        self.assertEqual(len(command.entries(), 3))
+        self.assertEqual(len(command.clusters(), 2))
+        self.assertEqual(len(command.keys(), 5))
+        self.assertEqual(command.keys(), ['', 'id', 'ticket_number', 'name', 'cluster'])
+
+    def test_split(self):
+        self.arguments['FILE'] = self.input_filepath
+        self.arguments['CLUSTER'] = 'fake cluster1'
+        self.arguments['split'] = True
+        command = CLI(self.arguments).command()
+        rc = command.execute()
         self.assertEqual(rc, 0)
 
 if __name__ == '__main__':

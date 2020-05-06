@@ -27,12 +27,16 @@ Usage:
   st.py suggestions create FORUM_ID TITLE BODY [options]
   st.py forums list [options]
   st.py forums show ID [options]
+  st.py csv verify FILE [options]
+  st.py csv split FILE CLUSTER [options]
 
   st.py (-h | --help)
   st.py (-v | --version)
 
 Options:
   --credentials=FILE          A YAML file with API key, user, and server options values.
+
+  --output-file=FILE          The file path to save entries when processing CSV files.
 
   --subdomain=SUBDOMAIN       The subdomain name for this UserVoice installation [default: cognitiveclass].
   --url-callback=URL-CALLBACK The URL callback for this app [default: http://localhost:4567/].

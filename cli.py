@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import yaml
+import yaml, csv, os.path
 
 from client import UserVoiceClient
 
@@ -132,6 +132,8 @@ class CLI:
             return Suggestions(self.args, self.credentials, client)
         elif self.args.get('forums') and self.args['forums']:
             return Forums(self.args, self.credentials, client)
+        elif self.args.get('csv') and self.args['csv']:
+            return CSV(self.args, self.credentials, client)
         else:
             raise Exception("Invalid command")
 
@@ -141,9 +143,11 @@ class Command:
         self.credentials = credentials
         self.client = client
 
+    def verbose(self):
+        return self.args['--verbose']
+
     def execute(self):
         func = self.dispatch()
-        # try:
         rc = func()
         if rc == None:
             return 0
@@ -152,14 +156,6 @@ class Command:
                 return rc
             else:
                 return -1
-        # except Exception as e:
-        #     Console.print("LOG: error {message}".format(message=str(e)))
-        #     return -1
-        # except:
-        #     if VERBOSE:
-        #         traceback.print_exc(file=sys.stdout)
-        #     Console.print("LOG: unknown error {message}".format(message=str(e)))
-        #     return -1
 
     def dispatch(self):
         if self.args['list']:
@@ -170,6 +166,10 @@ class Command:
             return self.delete
         elif self.args['create']:
             return self.create
+        elif self.args['verify']:
+            return self.verify
+        elif self.args['split']:
+            return self.split
         else:
             raise Exception("Invalid subcommand")
 
@@ -213,7 +213,7 @@ class Tickets(Command):
         if rc == 200:
             print("Ticket '{id}' deleted".format(id=self.args['ID']))
         else:
-            print("ERROR deleting ticket '{id}' API return code: {rc}".format(id=self.args['ID'], rc=rc))
+            print("🔥 deleting ticket '{id}' API return code: {rc}".format(id=self.args['ID'], rc=rc))
             return rc
         return 0
 
@@ -260,7 +260,7 @@ class Suggestions(Command):
         if rc == 200:
             print("Suggestion '{id}' deleted".format(id=self.args['ID']))
         else:
-            print("ERROR deleting suggestion '{id}' API return code: {rc}".format(id=self.args['ID'], rc=rc))
+            print("🔥 deleting suggestion '{id}' API return code: {rc}".format(id=self.args['ID'], rc=rc))
             return rc
         return 0
 
@@ -287,3 +287,79 @@ class Forums(Command):
         forum = self.client.get_forum(self.args['ID'])
         print("Forum: '{id}', name: '{name}'".format(id=forum['id'], name=forum['name']))
         return 0
+
+# csv command group
+class CSV(Command):
+    def __init__(self, args, credentials, client):
+        self.args = args
+        super().__init__(self.args, credentials, client)
+        self.keys = []
+        self.entries = []
+        self.clusters = []
+
+    def __check_file(self, filename):
+        if os.path.isfile(filename):
+            return True
+        else:
+            print("🔥 CSV file '{filename}' does not exist".format(filename=filename))
+            return False
+
+    def __normalize_keys(self, keys):
+        nkeys = []
+        for key in keys:
+            k = key.lower()
+            k = k.replace(' ', '_')
+            nkeys.append(k)
+        return nkeys
+
+    def __process_csv(self, filename):
+        with open(filename, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                self.entries.append(row)
+                if row.get('cluster'):
+                    cluster = row['cluster']
+                    if cluster not in self.clusters:
+                        self.clusters.append(cluster)
+                Console.print(row)
+            self.entries_keys = list(self.entries[0].keys())
+            self.keys = self.__normalize_keys(self.entries_keys)
+
+    def __save_cluster_entries(self, cluster, entries):
+        output_filename = self.args['--output-file']
+        if output_filename == None:
+            print("Use --output-file to specify output for entries of cluster: '{name}'".format(name=cluster))
+            return -1
+        with open(output_filename, 'w', newline='') as csvfile:
+            csv_writer = csv.writer(csvfile, delimiter=',', quotechar=' ',
+                                    quoting=csv.QUOTE_MINIMAL)
+            csv_writer.writerow(self.keys)
+            for e in entries:
+                csv_writer.writerow(list(e.values()))
+        print("Wrote '{size}' entries for cluster '{name}' in file: '{filename}'".format(size=len(entries), name=cluster, filename=output_filename))
+        return 0
+
+    def name(self):
+      return "csv"
+
+    def verify(self):
+        filename = self.args['FILE']
+        if not self.__check_file(filename): return -1
+        self.__process_csv(filename)
+        print("Entries:  found '{size}' entries in '{filename}'".format(size=len(self.entries), filename=filename))
+        print("Keys:     found '{size}' keys: {keys}".format(size=len(self.keys), keys=', '.join(self.keys)))
+        print("Clusters: found '{size}' clusters: {clusters}".format(size=len(self.clusters), clusters=', '.join(self.clusters)))
+        return 0
+
+    def split(self):
+        cluster = self.args['CLUSTER']
+        filename = self.args['FILE']
+        if not self.__check_file(filename): return -1
+        self.__process_csv(filename)
+        if cluster in self.clusters:
+            cluster_entries = []
+            for e in self.entries:
+                if e['cluster'] == cluster:
+                    cluster_entries.append(e)
+        print("Found '{size}' entries for '{name}' cluster".format(size=len(cluster_entries), name=cluster))
+        return self.__save_cluster_entries(cluster, cluster_entries)

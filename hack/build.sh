@@ -60,10 +60,19 @@ run() {
     exit 0
   fi
 
+  # Run only e2e tests
+  if $(has_flag --all -a); then
+    py_build
+    py_test
+    py_e2e
+    echo "────────────────────────────────────────────"
+    ./st.py --version
+    exit 0
+  fi
+
   # Default flow
   py_build
   py_test
-  py_e2e
 
   echo "────────────────────────────────────────────"
   ./st.py --version
@@ -111,6 +120,7 @@ py_e2e() {
 
   echo "🧪 e2e ${X}Tests"
   set +e
+  check_credentials
   cd test
   ./local-e2e-tests.sh >$e2e_output 2>&1
   local err=$?
@@ -122,6 +132,13 @@ py_e2e() {
   fi
   cd ..
   rm $e2e_output
+}
+
+check_credentials() {
+  if [ ! -f ./credentials.yml ]; then
+    echo "🔥 Could not find credentials.yml file"
+    exit -1
+  fi
 }
 
 check_license() {
@@ -224,6 +241,7 @@ Usage: $(basename $BASH_SOURCE) [... options ...]
 
 with the following options:
 
+-a  --all                     Run all build, unit and e2e tests
 -f  --fast                    Only compile (without dep update, formatting, testing, doc gen)
 -t  --test                    Run tests when used with --fast or --watch
 -e  --e2e                     Run the e2e tests when used with --fast or --watch
@@ -238,12 +256,11 @@ ln -s $(basedir)/hack/build.sh /usr/local/bin/kn_build.sh
 
 Examples:
 
-* Update deps, format, license check,
-  gen docs,  test: ................... build.sh
+* Run build and test: ................ build.sh
 * Run only tests: .................... build.sh --test
 * Run only e2e tests: ................ build.sh --e2e
 * Compile with tests: ................ build.sh -f -t
-* Build cross platform binaries: ..... build.sh --all
+* Build and allm tests: .............. build.sh --all
 EOT
 }
 
