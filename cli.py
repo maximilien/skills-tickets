@@ -179,25 +179,42 @@ class Tickets(Command):
         self.args = args
         super().__init__(self.args, credentials, client)
 
+    def __print(self, ticket):
+        print("Ticket: {id} ticket_id: {ticket_id}, title: '{title}'".format(**ticket))
+        if self.args['--show-details']:
+            print("------")
+
     def name(self):
       return "tickets"
 
     def list(self):
         tickets = self.client.get_tickets()
-        Console.print("Found '{len}' tickets".format(len=len(tickets)))
+        print("Found '{len}' tickets".format(len=len(tickets)))
+        if self.args['--show-details']:
+            i = 1
+            for ticket in tickets:
+                print("{no}. ID: '{id}', ticket_id: {ticket_id}, title: '{title}'".format(no=i, id=ticket['id'], title=ticket['title']))
+                i += 1
         return 0
 
     def show(self):
         ticket = self.client.get_ticket(self.args['ID'])
-        print("Ticket: {id} title: '{title}' is currently '{state}'".format(**suggestion))
+        print("Ticket: {id} ticket_id: {ticket_id} title: '{title}'".format(**ticket))
+        self.__print(ticket)
         return 0
 
     def create(self):
-        print("tickets create: {TITLE} {BODY} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
+        ticket = self.client.post_ticket(self.args['TITLE'], self.args['BODY'])
+        self.__print(ticket)
         return 0
 
     def delete(self):
-        print("tickets delete: {ID} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
+        rc = self.client.put_delete_ticket(self.args['ID'])
+        if rc == 200:
+            print("Ticket '{id}' deleted".format(id=self.args['ID']))
+        else:
+            print("ERROR deleting ticket '{id}' API return code: {rc}".format(id=self.args['ID'], rc=rc))
+            return rc
         return 0
 
 # suggestions command group
@@ -239,7 +256,12 @@ class Suggestions(Command):
         return 0
 
     def delete(self):
-        print("suggestions delete: {ID} {--subdomain} {--api-key} {--api-secret}".format(**self.args))
+        rc = self.client.put_delete_suggestion(self.args['ID'])
+        if rc == 200:
+            print("Suggestion '{id}' deleted".format(id=self.args['ID']))
+        else:
+            print("ERROR deleting suggestion '{id}' API return code: {rc}".format(id=self.args['ID'], rc=rc))
+            return rc
         return 0
 
 # forums command group

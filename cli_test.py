@@ -65,7 +65,7 @@ class TestCLI(TestCase):
                          'BODY': 'body',
                          'ID': None,
                          'TITLE': 'title',
-                         'create': True,
+                         'create': False,
                          'list': False,
                          'delete': False,
                          'show': False,
@@ -108,30 +108,87 @@ class TestTickets(TestCase):
                          'BODY': 'body',
                          'ID': None,
                          'TITLE': 'title',
-                         'create': True,
+                         'create': False,
                          'list': False,
                          'delete': False,
                          'show': False,
                          'tickets': True}
+
+    @patch('client.UserVoiceClient')
+    def __create_mock_client_get_ticket(self, MockUserVoiceClient):
+        client = MockUserVoiceClient()
+        client.get_ticket.return_value = {'id': 1, 'ticket_id': 1, 'title': 'fake-title1'}
+        return client
+
+    @patch('client.UserVoiceClient')
+    def __create_mock_client_get_tickets(self, MockUserVoiceClient):
+        client = MockUserVoiceClient()
+        client.get_tickets.return_value = [{'id': 1, 'ticket_id': 1, 'title': 'fake-title1'},
+                                           {'id': 2, 'ticket_id': 1, 'title': 'fake-title2'}]
+        return client
+
+    @patch('client.UserVoiceClient')
+    def __create_mock_client_post_ticket(self, MockUserVoiceClient):
+        client = MockUserVoiceClient()
+        client.post_ticket.return_value = {'id': 1, 'ticket_id': 1, 'title': 'fake-title1'}
+        return client
+
+    @patch('client.UserVoiceClient')
+    def __create_mock_client_put_delete_ticket(self, MockUserVoiceClient):
+        client = MockUserVoiceClient()
+        client.put_delete_ticket.return_value = 200
+        return client
 
     def test_name(self):
         cli = CLI(self.arguments)
         self.assertEqual(cli.command().name(), 'tickets')
 
     def test_execute(self):
-        pass
+        self.arguments['fake'] = True
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_get_tickets()
+        with self.assertRaises(Exception) as context:
+            cli.command(client).execute()
 
     def test_list(self):
-        pass
+        self.arguments['list'] = True
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_get_tickets()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
+
+    def test_list_show_details(self):
+        self.arguments['list'] = True
+        self.arguments['--show-details'] = True
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_get_ticket()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
 
     def test_show(self):
-        pass
-
-    def test_delete(self):
-        pass
+        self.arguments['show'] = True
+        self.arguments['ID'] = 1
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_get_ticket()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
 
     def test_create(self):
-        pass
+        self.arguments['create'] = True
+        self.arguments['TITLE'] = "fake-title"
+        self.arguments['BODY'] = "fake-body"
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_post_ticket()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
+
+    def test_delete(self):
+        self.arguments['delete'] = True
+        self.arguments['ID'] = 1
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_put_delete_ticket()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
 
 class TestSuggestions(TestCase):
     def setUp(self):
@@ -150,7 +207,7 @@ class TestSuggestions(TestCase):
                          'BODY': 'body',
                          'ID': None,
                          'TITLE': 'title',
-                         'create': True,
+                         'create': False,
                          'list': False,
                          'delete': False,
                          'show': False,
@@ -169,12 +226,28 @@ class TestSuggestions(TestCase):
                                                {'id': 2, 'title': 'fake-title2', 'state': 'fake-state2'}]
         return client
 
+    @patch('client.UserVoiceClient')
+    def __create_mock_client_post_suggestion(self, MockUserVoiceClient):
+        client = MockUserVoiceClient()
+        client.post_suggestion.return_value = {'id': 1, 'title': 'fake-title1', 'state': 'fake-state1'}
+        return client
+
+    @patch('client.UserVoiceClient')
+    def __create_mock_client_put_delete_suggestion(self, MockUserVoiceClient):
+        client = MockUserVoiceClient()
+        client.put_delete_suggestion.return_value = 200
+        return client
+
     def test_name(self):
         cli = CLI(self.arguments)
         self.assertEqual(cli.command().name(), 'suggestions')
 
     def test_execute(self):
-        pass
+        self.arguments['fake'] = True
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_get_suggestions()
+        with self.assertRaises(Exception) as context:
+            cli.command(client).execute()
 
     def test_list(self):
         self.arguments['list'] = True
@@ -200,10 +273,22 @@ class TestSuggestions(TestCase):
         self.assertEqual(rc, 0)
 
     def test_create(self):
-        pass
+        self.arguments['create'] = True
+        self.arguments['FORUM_ID'] = 1
+        self.arguments['TITLE'] = "fake-title"
+        self.arguments['BODY'] = "fake-body"
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_post_suggestion()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
 
     def test_delete(self):
-        pass
+        self.arguments['delete'] = True
+        self.arguments['ID'] = 1
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_put_delete_suggestion()
+        rc = cli.command(client).execute()
+        self.assertEqual(rc, 0)
 
 class TestForums(TestCase):
     def setUp(self):
@@ -222,7 +307,7 @@ class TestForums(TestCase):
                          'BODY': 'body',
                          'ID': None,
                          'TITLE': 'title',
-                         'create': True,
+                         'create': False,
                          'list': False,
                          'delete': False,
                          'show': False,
@@ -246,7 +331,11 @@ class TestForums(TestCase):
         self.assertEqual(cli.command().name(), 'forums')
 
     def test_execute(self):
-        pass
+        self.arguments['fake'] = True
+        cli = CLI(self.arguments)
+        client = self.__create_mock_client_get_forums()
+        with self.assertRaises(Exception) as context:
+            cli.command(client).execute()
 
     def test_list(self):
         self.arguments['list'] = True

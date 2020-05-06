@@ -23,16 +23,37 @@ class TestUserVoiceClient(unittest.TestCase):
     def test_get_client(self):
         pass
 
-    def test_suggestions(self):
+    # suggestions
+    def test_get_suggestions(self):
         pass
 
-    def test_suggestion(self):
+    def test_get_suggestion(self):
         pass
 
-    def test_tickets(self):
+    def test_post_suggestion(self):
         pass
 
-    def test_ticket(self):
+    def test_put_delete_suggestion(self):
+        pass
+
+    # tickets
+    def test_get_tickets(self):
+        pass
+
+    def test_get_ticket(self):
+        pass
+
+    def test_post_ticket(self):
+        pass
+
+    def test_put_delete_ticket(self):
+        pass
+
+    # forums
+    def test_get_forums(self):
+        pass
+
+    def test_get_forum(self):
         pass
 
 if __name__ == '__main__':

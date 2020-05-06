@@ -52,6 +52,9 @@ class UserVoiceClient:
             })['suggestion']
             return suggestion
 
+    def put_delete_ticket(self, id):
+        return self.get_client().put("/api/v1/suggestions/{id}/delete".format(id=id))
+
     # Tickets
     def get_tickets(self):
         with self.get_client().login_as(self.credentials.email()) as access_token:
@@ -70,6 +73,9 @@ class UserVoiceClient:
             }
         })['ticket']
         return question
+
+    def put_delete_ticket(self, id):
+        return self.get_client().put("/api/v1/tickets/{id}/delete".format(id=id))
 
     # Forums
     def get_forums(self):
