@@ -6,9 +6,9 @@ Automate ticket response for `UserVoice` sites. Using this CLI you can automate 
 
 There are two things you need to get started with the SkillsTickets CLI. From now on called CLI or `st.py`.
 
-First, you need to get a developer or admin account on your `UserVoice` installation. When you do, you will have a series of keys that you need to save and use to use this CLI. The following section named [Credentials](##Credentials) goes into details on how to use these credentials.
+First, you need to get a developer or admin account on your `UserVoice` installation. When you do, you will have a series of keys that you need to save and use to use this CLI. The following section named [Credentials](#Credentials) goes into details on how to use these credentials.
 
-Second, you need to setup your [environment](##Environment). See that section for details. However, note that you can either setup your local machine with Python3 and dependencies or better use the `Dockerfile` to create a container with all the details. You can also use one of my publish images: `dockerhub.io/drmax/skillstickers:latest`.
+Second, you need to setup your [environment](#Environment). See that section for details. However, note that you can either setup your local machine with Python3 and dependencies or better use the `Dockerfile` to create a container with all the details. You can also use one of my publish images: `dockerhub.io/drmax/skillstickets:latest`.
 
 ## Credentials
 
@@ -18,13 +18,13 @@ Once you have created credentials for your `UserVoice` account, you will be give
 2. `url_callback` set this to `http://localhost:4567/`
 3. `api_key` this is a unique key for you
 4. `api_secret` this is a unique secret key for you
-5. `sso_key` this another key you need to generate in your `UserVoice` installation it perdiodically expires, so you might have to re-generate it
+5. `sso_key` this another key you need to generate in your `UserVoice` installation and it perdiodically expires, so you might have to re-generate it
 6. `display_name` this is the name that will be used for suggestions and tickets you create with this CLI
 7. `email` this is the email you use to login to the `UserVoice` installation
 
 You will need to keep these and use them when invoking the CLI. You can either pass each key with each invokation using the corresponding option named by the key listed above.
 
-Or as a shortcut, you can create a `credentials.yml` file and add all your keys and info in there. Then you can pass all credentials using `--credentials=./credentials.yml`.
+Or as a shortcut, you can create a `credentials.yml` file and add all your keys and info in there. Then you can pass all credentials at once using `--credentials=./credentials.yml`.
 
 Create your `./credentials.yml` file with a command as follows or with your favorite editor:
 
@@ -145,7 +145,7 @@ Usage:
 
 Description:
 
-Creates a suggestion. You need to find the ID of the forum where this suggestion will be created. Use the [`forums`](###forums) command to list and show forums and get their IDs. 
+Creates a suggestion. You need to find the ID of the forum where this suggestion will be created. Use the [`forums`](#forums) command to list and show forums and get their IDs. 
 
 Example:
 
@@ -358,7 +358,7 @@ TODO
 
 The code includes both unit tests and integration tests. You can run all unit tests by invoking: `./hack/build.sh --test`.
 
-Integration tests will require you to have [Credentials](##Credentials) for a running `UserVoice` installation in a file called `credentials.yml`. You can then invoke `./build/build.sh --e2e` to run the integration tests.
+Integration tests will require you to have [Credentials](#Credentials) for a running `UserVoice` installation in a file called `credentials.yml`. You can then invoke `./build/build.sh --e2e` to run the integration tests.
 
 You can run both types of tests with `./hack/build.sh --all`
 
