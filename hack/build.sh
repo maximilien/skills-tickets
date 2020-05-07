@@ -16,6 +16,7 @@
 
 set -o pipefail
 
+docker_username=${DOCKER_USERNAME:-}
 source_dirs="."
 
 # Store for later
@@ -60,6 +61,37 @@ run() {
     exit 0
   fi
 
+  # Run docker-image and docker-push
+  if $(has_flag --docker -d); then
+    if [[ -z "${docker_username}" ]]; then
+      echo "Please set environment variable DOCKER_USERNAME"
+      exit 1
+    fi
+    docker_build_image
+    docker_push_image
+    exit 0
+  fi
+
+  # Run only docker-image
+  if $(has_flag --docker-image); then
+    if [[ -z "${docker_username}" ]]; then
+      echo "Please set environment variable DOCKER_USERNAME"
+      exit 1
+    fi
+    docker_build_image
+    exit 0
+  fi
+
+  # Run only docker-push
+  if $(has_flag --docker-push); then
+    if [[ -z "${docker_username}" ]]; then
+      echo "Please set environment variable DOCKER_USERNAME"
+      exit 1
+    fi
+    docker_push_image
+    exit 0
+  fi
+
   # Run only e2e tests
   if $(has_flag --all -a); then
     py_build
@@ -78,9 +110,19 @@ run() {
   ./st.py --version
 }
 
+docker_build_image() {
+  echo "🚧 🐳 build image"
+  docker build -f ./Dockerfile -t ${DOCKER_USERNAME}/skills-tickets .
+}
+
+docker_push_image() {
+  echo "🐳 push image"
+  docker push ${DOCKER_USERNAME}/skills-tickets
+}
+
 py_build() {
-  echo "🚧 Compile"
-  #go build -mod=vendor -ldflags "$(build_flags $(basedir))" -o skills-tickets ./cmd/...
+  echo "🚧 Nothing to build (python3)"
+  echo "🧹 Linting *.py sources"
 }
 
 py_test() {
@@ -245,6 +287,9 @@ with the following options:
 -f  --fast                    Only compile (without dep update, formatting, testing, doc gen)
 -t  --test                    Run tests when used with --fast or --watch
 -e  --e2e                     Run the e2e tests when used with --fast or --watch
+-d  --docker                  Generates Docker image and push using DOCKER_USERNAME
+    --docker-image            Generates Docker image only
+    --docker-push             Pushes Docker image using DOCKER_USERNAME
 -h  --help                    Display this help message
     --verbose                 More output
     --debug                   Debug information for this script (set -x)
@@ -260,7 +305,8 @@ Examples:
 * Run only tests: .................... build.sh --test
 * Run only e2e tests: ................ build.sh --e2e
 * Compile with tests: ................ build.sh -f -t
-* Build and allm tests: .............. build.sh --all
+* Generate and push docker image: .... build.sh --docker
+* Build and all and tests: ........... build.sh --all
 EOT
 }
 

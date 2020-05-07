@@ -61,7 +61,7 @@ from docopt import docopt
 from cli import *
 
 if __name__ == '__main__':
-    args = docopt(__doc__, version='Skills Tickets v0.4')
+    args = docopt(__doc__, version='Skills Tickets v0.4.1')
     command = CLI(args).command()
     rc = command.execute()
     if rc != 0:

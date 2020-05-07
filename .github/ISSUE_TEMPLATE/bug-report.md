@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a bug for "st.py"
+about: Report a bug for "./st.py"
 title: ''
 labels: kind/bug
 assignees: ''
