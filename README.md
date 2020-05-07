@@ -45,6 +45,8 @@ email: [email here]
 EOF
 ```
 
+*WARNING* needless to say that you should not share not checkin to GitHub nor make public your credentials.
+
 ## User guide
 
 The following is a brief user guide for the `st.py` CLI. You can see an abreviated version of this user guide by running `./st.py --help`
