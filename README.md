@@ -14,7 +14,7 @@ Second, you need to setup your [environment](#Environment). See that section for
 
 Once you have created credentials for your `UserVoice` account, you will be given the following keys: 
 
-1. `subdomain` is the name for your `UserVoice` installation
+1. `subdomain` is the URL subdomain for your `UserVoice` installation, e.g., support.labs.cognitiveclass.ai
 2. `url_callback` set this to `http://localhost:4567/`
 3. `api_key` this is a unique key for you
 4. `api_secret` this is a unique secret key for you
@@ -96,7 +96,7 @@ Options:
 
 This lists the help for all command and options in the CLI.
 
-### `suggestions` group
+### `suggestions`
 
 The `suggestions` command group is used to manage `UserVoice` suggestion or idea objects.
 
@@ -173,7 +173,7 @@ Example:
 Deleted suggestion `27530678`
 ```
 
-### `tickets` group
+### `tickets`
 
 The `tickets` command group is used to manage `UserVoice` ticket objects.
 
@@ -244,7 +244,7 @@ Example:
 Deleted ticket '457108345'
 ```
 
-### `forums` group
+### `forums`
 
 The `forums` command group allows listing and accessing forums used to submit `suggestions`.
 
@@ -283,7 +283,7 @@ Example:
 Forum: '317580', name: 'General'
 ```
 
-### `csv` group
+### `csv`
 
 The `csv` command group contains command to manipulate CSV files of tickets data to perform `--bulk` operations.
 
