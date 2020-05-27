@@ -228,7 +228,7 @@ class Suggestions(Command):
         if self.args['--show-details']:
             print("  referrer: {referrer}".format(referrer=suggestion['referrer']))
             print("  vote_count: {vote_count}, subscriber_count: {subscriber_count}, comments_count: {comments_count}, supporters_count: {supporters_count}".format(vote_count=suggestion['vote_count'], subscriber_count=suggestion['subscriber_count'], comments_count=suggestion['comments_count'], supporters_count=suggestion['supporters_count']))
-            print("  category: {category}, status: {status}, response: {response}".format(category=suggestion['category']['name'], status=suggestion['status'], response=suggestion['response']))
+            print("  category: {category}, status: {status}, response: {response}".format(category=suggestion['category'], status=suggestion['status'], response=suggestion['response']))
             print("  text: {text}".format(text=suggestion['text']))
             print("------")
 

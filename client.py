@@ -39,10 +39,10 @@ class UserVoiceClient:
         return self.get_client().get_collection("/api/v1/suggestions?sort=newest")
 
     def get_suggestion(self, id):
-        return self.get_client().get("/api/v1/suggestions/", {'id': id})['suggestions'][0]
+        return self.get_client().get("/api/v1/suggestions/{id}".format(id=id))['suggestion']
 
     def post_suggestion(self, forum_id, title, text):
-        with client.login_as(self.credentials.email()) as access_token:
+        with self.get_client().login_as(self.credentials.email()) as access_token:
             suggestion = access_token.post("/api/v1/forums/{forum_id}/suggestions.json".format(forum_id=forum_id), {
                 'email': self.credentials.email(),
                 'suggestion': {
@@ -57,6 +57,7 @@ class UserVoiceClient:
 
     # Tickets
     def get_tickets(self):
+        # return self.get_client().get_collection("/api/v1/tickets?sort=newest")
         with self.get_client().login_as(self.credentials.email()) as access_token:
             return access_token.get_collection("/api/v1/tickets?sort=newest")
         return []
